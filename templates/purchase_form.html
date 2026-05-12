@@ -468,12 +468,17 @@ function addItemRow() {
         </div>
     `;
 
-    container.insertAdjacentHTML("beforeend", html);
+    container.insertAdjacentHTML("afterbegin", html);
 
-    const rows =
-        document.querySelectorAll(".item-row");
+    const newRow =
+        container.querySelector(".item-row");
 
-    setupRow(rows[rows.length - 1]);
+    setupRow(newRow);
+
+    newRow.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
 
     updateGrandTotal();
 }
