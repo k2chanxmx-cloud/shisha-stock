@@ -1,0 +1,505 @@
+{% extends "base.html" %}
+
+{% block page_title %}
+{% if mode == "edit" %}
+購入編集
+{% else %}
+購入登録
+{% endif %}
+{% endblock %}
+
+{% block content %}
+
+<div class="grid-gap">
+
+    <form method="post" id="purchase-form">
+
+        <!-- 基本情報 -->
+        <section class="glass-card">
+
+            <div class="card-header">
+                <h2>購入情報</h2>
+            </div>
+
+            <div class="form-group">
+                <label>購入日</label>
+
+                <input
+                    type="date"
+                    name="purchase_date"
+                    value="{% if purchase %}{{ purchase.purchase_date }}{% else %}{{ today }}{% endif %}"
+                >
+            </div>
+
+            <div class="form-group">
+                <label>ステータス</label>
+
+                <select name="status">
+                    <option
+                        value="planned"
+                        {% if purchase and purchase.status == "planned" %}
+                        selected
+                        {% endif %}
+                    >
+                        検討中
+                    </option>
+
+                    <option
+                        value="purchased"
+                        {% if purchase and purchase.status == "purchased" %}
+                        selected
+                        {% endif %}
+                    >
+                        購入済み
+                    </option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>メモ</label>
+
+                <textarea
+                    name="memo"
+                    rows="3"
+                    placeholder="メモ"
+                >{% if purchase %}{{ purchase.memo }}{% endif %}</textarea>
+            </div>
+
+        </section>
+
+
+        <!-- 明細 -->
+        <section class="glass-card">
+
+            <div class="card-header">
+                <h2>フレーバー</h2>
+
+                <button
+                    type="button"
+                    class="mini-btn"
+                    onclick="addItemRow()"
+                >
+                    ＋追加
+                </button>
+            </div>
+
+            <div id="items-container">
+
+                {% if items %}
+
+                    {% for item in items %}
+
+                        <div class="item-row">
+
+                            <div class="form-group">
+                                <label>メーカー</label>
+
+                                <select
+                                    name="manufacturer_id[]"
+                                    class="manufacturer-select"
+                                >
+                                    <option value="">
+                                        選択してください
+                                    </option>
+
+                                    {% for maker in manufacturers %}
+
+                                        <option
+                                            value="{{ maker.id }}"
+                                            data-price="{{ maker.unit_price }}"
+                                            {% if item.manufacturer_id == maker.id %}
+                                            selected
+                                            {% endif %}
+                                        >
+                                            {{ maker.name }}
+                                        </option>
+
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>フレーバー名</label>
+
+                                <input
+                                    type="text"
+                                    name="flavor_name[]"
+                                    value="{{ item.flavor_name }}"
+                                    placeholder="Love66"
+                                >
+                            </div>
+
+                            <div class="inline-grid">
+
+                                <div class="form-group">
+                                    <label>個数</label>
+
+                                    <input
+                                        type="number"
+                                        name="quantity[]"
+                                        class="quantity-input"
+                                        value="{{ item.quantity }}"
+                                        min="1"
+                                    >
+                                </div>
+
+                                <div class="form-group">
+                                    <label>単価</label>
+
+                                    <input
+                                        type="number"
+                                        name="unit_price[]"
+                                        class="price-input"
+                                        value="{{ item.unit_price }}"
+                                    >
+                                </div>
+
+                            </div>
+
+                            <div class="subtotal-box">
+                                小計：
+                                <span class="subtotal-value">
+                                    ¥{{ "{:,}".format(item.subtotal) }}
+                                </span>
+                            </div>
+
+                            <button
+                                type="button"
+                                class="delete-btn"
+                                onclick="removeItemRow(this)"
+                            >
+                                削除
+                            </button>
+
+                        </div>
+
+                    {% endfor %}
+
+                {% else %}
+
+                    <div class="item-row">
+
+                        <div class="form-group">
+                            <label>メーカー</label>
+
+                            <select
+                                name="manufacturer_id[]"
+                                class="manufacturer-select"
+                            >
+                                <option value="">
+                                    選択してください
+                                </option>
+
+                                {% for maker in manufacturers %}
+
+                                    <option
+                                        value="{{ maker.id }}"
+                                        data-price="{{ maker.unit_price }}"
+                                    >
+                                        {{ maker.name }}
+                                    </option>
+
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>フレーバー名</label>
+
+                            <input
+                                type="text"
+                                name="flavor_name[]"
+                                placeholder="Love66"
+                            >
+                        </div>
+
+                        <div class="inline-grid">
+
+                            <div class="form-group">
+                                <label>個数</label>
+
+                                <input
+                                    type="number"
+                                    name="quantity[]"
+                                    class="quantity-input"
+                                    value="1"
+                                    min="1"
+                                >
+                            </div>
+
+                            <div class="form-group">
+                                <label>単価</label>
+
+                                <input
+                                    type="number"
+                                    name="unit_price[]"
+                                    class="price-input"
+                                    value="0"
+                                >
+                            </div>
+
+                        </div>
+
+                        <div class="subtotal-box">
+                            小計：
+                            <span class="subtotal-value">
+                                ¥0
+                            </span>
+                        </div>
+
+                        <button
+                            type="button"
+                            class="delete-btn"
+                            onclick="removeItemRow(this)"
+                        >
+                            削除
+                        </button>
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        </section>
+
+
+        <!-- 合計 -->
+        <section class="glass-card total-card">
+
+            <div class="grand-total-label">
+                合計
+            </div>
+
+            <div class="grand-total-value" id="grand-total">
+                ¥0
+            </div>
+
+        </section>
+
+
+        <!-- 保存 -->
+        <button
+            type="submit"
+            class="primary-btn big-btn"
+        >
+            保存する
+        </button>
+
+    </form>
+
+
+    {% if mode == "edit" %}
+
+        <form
+            method="post"
+            action="{{ url_for('purchase_delete', purchase_id=purchase.id) }}"
+            onsubmit="return confirm('削除しますか？')"
+        >
+            <button
+                type="submit"
+                class="danger-btn"
+            >
+                削除する
+            </button>
+        </form>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}
+
+
+{% block scripts %}
+
+<script>
+
+function setupRow(row) {
+
+    const select = row.querySelector(".manufacturer-select");
+    const quantityInput = row.querySelector(".quantity-input");
+    const priceInput = row.querySelector(".price-input");
+    const subtotalValue = row.querySelector(".subtotal-value");
+
+    function recalc() {
+
+        const quantity = parseInt(quantityInput.value || 0);
+        const price = parseInt(priceInput.value || 0);
+
+        const subtotal = quantity * price;
+
+        subtotalValue.textContent =
+            "¥" + subtotal.toLocaleString();
+
+        updateGrandTotal();
+    }
+
+    select.addEventListener("change", function () {
+
+        const option =
+            select.options[select.selectedIndex];
+
+        const price =
+            option.dataset.price || 0;
+
+        priceInput.value = price;
+
+        recalc();
+    });
+
+    quantityInput.addEventListener("input", recalc);
+    priceInput.addEventListener("input", recalc);
+
+    recalc();
+}
+
+
+function updateGrandTotal() {
+
+    let total = 0;
+
+    document
+        .querySelectorAll(".item-row")
+        .forEach(function (row) {
+
+            const quantity =
+                parseInt(
+                    row.querySelector(".quantity-input").value || 0
+                );
+
+            const price =
+                parseInt(
+                    row.querySelector(".price-input").value || 0
+                );
+
+            total += quantity * price;
+        });
+
+    document.getElementById("grand-total").textContent =
+        "¥" + total.toLocaleString();
+}
+
+
+function addItemRow() {
+
+    const container =
+        document.getElementById("items-container");
+
+    const html = `
+        <div class="item-row">
+
+            <div class="form-group">
+                <label>メーカー</label>
+
+                <select
+                    name="manufacturer_id[]"
+                    class="manufacturer-select"
+                >
+                    <option value="">
+                        選択してください
+                    </option>
+
+                    {% for maker in manufacturers %}
+
+                    <option
+                        value="{{ maker.id }}"
+                        data-price="{{ maker.unit_price }}"
+                    >
+                        {{ maker.name }}
+                    </option>
+
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>フレーバー名</label>
+
+                <input
+                    type="text"
+                    name="flavor_name[]"
+                    placeholder="Love66"
+                >
+            </div>
+
+            <div class="inline-grid">
+
+                <div class="form-group">
+                    <label>個数</label>
+
+                    <input
+                        type="number"
+                        name="quantity[]"
+                        class="quantity-input"
+                        value="1"
+                        min="1"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label>単価</label>
+
+                    <input
+                        type="number"
+                        name="unit_price[]"
+                        class="price-input"
+                        value="0"
+                    >
+                </div>
+
+            </div>
+
+            <div class="subtotal-box">
+                小計：
+                <span class="subtotal-value">
+                    ¥0
+                </span>
+            </div>
+
+            <button
+                type="button"
+                class="delete-btn"
+                onclick="removeItemRow(this)"
+            >
+                削除
+            </button>
+
+        </div>
+    `;
+
+    container.insertAdjacentHTML("beforeend", html);
+
+    const rows =
+        document.querySelectorAll(".item-row");
+
+    setupRow(rows[rows.length - 1]);
+
+    updateGrandTotal();
+}
+
+
+function removeItemRow(button) {
+
+    const rows =
+        document.querySelectorAll(".item-row");
+
+    if (rows.length <= 1) {
+        return;
+    }
+
+    button.closest(".item-row").remove();
+
+    updateGrandTotal();
+}
+
+
+document
+    .querySelectorAll(".item-row")
+    .forEach(setupRow);
+
+updateGrandTotal();
+
+</script>
+
+{% endblock %}

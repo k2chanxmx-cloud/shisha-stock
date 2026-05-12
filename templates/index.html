@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+
+{% block page_title %}
+ホーム
+{% endblock %}
+
+{% block content %}
+
+<div class="grid-gap">
+
+    <!-- 今月サマリー -->
+    <section class="glass-card">
+        <div class="card-header">
+            <h2>今月の購入</h2>
+            <span class="badge">{{ current_month }}</span>
+        </div>
+
+        <div class="summary-grid">
+            <div class="summary-box">
+                <p class="summary-label">購入回数</p>
+                <p class="summary-value">
+                    {{ month_summary.purchased_count or 0 }}
+                </p>
+            </div>
+
+            <div class="summary-box">
+                <p class="summary-label">合計金額</p>
+                <p class="summary-value money">
+                    {{ month_summary.purchased_total | yen }}
+                </p>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- 検討中 -->
+    <section class="glass-card">
+        <div class="card-header">
+            <h2>検討中フレーバー</h2>
+
+            <a href="{{ url_for('purchase_new') }}" class="mini-btn">
+                ＋追加
+            </a>
+        </div>
+
+        {% if planned_purchases %}
+
+            <div class="purchase-list">
+
+                {% for purchase in planned_purchases %}
+
+                    <a
+                        href="{{ url_for('purchase_edit', purchase_id=purchase.id) }}"
+                        class="purchase-item"
+                    >
+                        <div class="purchase-top">
+                            <div>
+                                <p class="purchase-title">
+                                    検討中
+                                </p>
+
+                                <p class="purchase-date">
+                                    {{ purchase.purchase_date }}
+                                </p>
+                            </div>
+
+                            <div class="purchase-right">
+                                <p class="purchase-total">
+                                    {{ purchase.total_amount | yen }}
+                                </p>
+
+                                <span class="purchase-count">
+                                    {{ purchase.item_count }}件
+                                </span>
+                            </div>
+                        </div>
+
+                        {% if purchase.memo %}
+                            <p class="purchase-memo">
+                                {{ purchase.memo }}
+                            </p>
+                        {% endif %}
+                    </a>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="empty-box">
+                検討中のフレーバーはありません
+            </div>
+
+        {% endif %}
+    </section>
+
+
+    <!-- 最近の購入 -->
+    <section class="glass-card">
+        <div class="card-header">
+            <h2>最近の購入履歴</h2>
+
+            <a href="{{ url_for('history') }}" class="mini-btn">
+                履歴へ
+            </a>
+        </div>
+
+        {% if recent_purchases %}
+
+            <div class="purchase-list">
+
+                {% for purchase in recent_purchases %}
+
+                    <a
+                        href="{{ url_for('purchase_edit', purchase_id=purchase.id) }}"
+                        class="purchase-item"
+                    >
+                        <div class="purchase-top">
+                            <div>
+                                <p class="purchase-title">
+                                    {{ purchase.purchase_count }}回目購入
+                                </p>
+
+                                <p class="purchase-date">
+                                    {{ purchase.purchase_date }}
+                                </p>
+                            </div>
+
+                            <div class="purchase-right">
+                                <p class="purchase-total">
+                                    {{ purchase.total_amount | yen }}
+                                </p>
+                            </div>
+                        </div>
+
+                        {% if purchase.memo %}
+                            <p class="purchase-memo">
+                                {{ purchase.memo }}
+                            </p>
+                        {% endif %}
+                    </a>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="empty-box">
+                購入履歴がありません
+            </div>
+
+        {% endif %}
+    </section>
+
+</div>
+
+{% endblock %}

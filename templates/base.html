@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>SHISHA STOCK</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+    <meta name="theme-color" content="#050816">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="SHISHA STOCK">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='icon-512.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <div class="app-shell">
+
+        <header class="app-header">
+            <div>
+                <p class="eyebrow">FLAVOR PURCHASE MANAGER</p>
+                <h1>{% block page_title %}SHISHA STOCK{% endblock %}</h1>
+            </div>
+        </header>
+
+        <main class="app-main">
+            {% block content %}{% endblock %}
+        </main>
+
+        <nav class="bottom-nav">
+            <a href="{{ url_for('index') }}" class="nav-item {% if request.endpoint == 'index' %}active{% endif %}">
+                <span>🏠</span>
+                <small>ホーム</small>
+            </a>
+
+            <a href="{{ url_for('purchase_new') }}" class="nav-item {% if request.endpoint in ['purchase_new', 'purchase_edit'] %}active{% endif %}">
+                <span>🛒</span>
+                <small>購入</small>
+            </a>
+
+            <a href="{{ url_for('history') }}" class="nav-item {% if request.endpoint == 'history' %}active{% endif %}">
+                <span>📜</span>
+                <small>履歴</small>
+            </a>
+
+            <a href="{{ url_for('ranking') }}" class="nav-item {% if request.endpoint == 'ranking' %}active{% endif %}">
+                <span>🏆</span>
+                <small>ランキング</small>
+            </a>
+
+            <a href="{{ url_for('master') }}" class="nav-item {% if request.endpoint == 'master' %}active{% endif %}">
+                <span>⚙️</span>
+                <small>マスタ</small>
+            </a>
+        </nav>
+
+    </div>
+
+    <script>
+        if ("serviceWorker" in navigator) {
+            window.addEventListener("load", function () {
+                navigator.serviceWorker.register("{{ url_for('static', filename='sw.js') }}")
+                    .catch(function (error) {
+                        console.log("ServiceWorker registration failed:", error);
+                    });
+            });
+        }
+    </script>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block page_title %}
+履歴
+{% endblock %}
+
+{% block content %}
+
+<div class="grid-gap">
+
+    <section class="glass-card">
+        <div class="card-header">
+            <h2>月別履歴</h2>
+        </div>
+
+        <form method="get" class="month-form">
+            <select name="month" onchange="this.form.submit()">
+                {% for month in months %}
+                    <option
+                        value="{{ month.purchase_month }}"
+                        {% if month.purchase_month == selected_month %}
+                        selected
+                        {% endif %}
+                    >
+                        {{ month.purchase_month }}
+                    </option>
+                {% endfor %}
+            </select>
+        </form>
+
+        <div class="month-total-box">
+            <span>購入済み合計</span>
+            <strong>{{ month_total | yen }}</strong>
+        </div>
+    </section>
+
+
+    {% if purchases %}
+
+        {% for purchase in purchases %}
+
+            <section class="glass-card history-card">
+
+                <div class="history-head">
+                    <div>
+                        {% if purchase.status == "purchased" %}
+                            <span class="status-badge purchased">
+                                購入済み
+                            </span>
+                        {% else %}
+                            <span class="status-badge planned">
+                                検討中
+                            </span>
+                        {% endif %}
+
+                        <h2>
+                            {% if purchase.status == "purchased" %}
+                                {{ purchase.purchase_count }}回目購入
+                            {% else %}
+                                検討メモ
+                            {% endif %}
+                        </h2>
+
+                        <p class="muted">
+                            {{ purchase.purchase_date }}
+                        </p>
+                    </div>
+
+                    <div class="history-price">
+                        {{ purchase.total_amount | yen }}
+                    </div>
+                </div>
+
+                {% if purchase.memo %}
+                    <p class="history-memo">
+                        {{ purchase.memo }}
+                    </p>
+                {% endif %}
+
+                <div class="history-items">
+
+                    {% for item in items_by_purchase.get(purchase.id, []) %}
+
+                        <div class="history-item-row">
+                            <div>
+                                <p class="flavor-name">
+                                    {{ item.flavor_name }}
+                                </p>
+
+                                <p class="muted">
+                                    {{ item.manufacturer_name or "メーカー未設定" }}
+                                    /
+                                    {{ item.quantity }}個
+                                    /
+                                    {{ item.unit_price | yen }}
+                                </p>
+                            </div>
+
+                            <strong>
+                                {{ item.subtotal | yen }}
+                            </strong>
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+                <a
+                    href="{{ url_for('purchase_edit', purchase_id=purchase.id) }}"
+                    class="secondary-btn"
+                >
+                    編集する
+                </a>
+
+            </section>
+
+        {% endfor %}
+
+    {% else %}
+
+        <section class="glass-card">
+            <div class="empty-box">
+                この月の履歴はありません
+            </div>
+        </section>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

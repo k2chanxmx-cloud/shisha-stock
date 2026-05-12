@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block page_title %}
+ランキング
+{% endblock %}
+
+{% block content %}
+
+<div class="grid-gap">
+
+    <section class="glass-card">
+
+        <div class="card-header">
+            <h2>🏆 全期間ランキング</h2>
+        </div>
+
+        {% if ranking_items %}
+
+            <div class="ranking-list">
+
+                {% for item in ranking_items %}
+
+                    <div class="ranking-item">
+
+                        <div class="ranking-left">
+
+                            <div class="ranking-rank">
+
+                                {% if loop.index == 1 %}
+                                    🥇
+                                {% elif loop.index == 2 %}
+                                    🥈
+                                {% elif loop.index == 3 %}
+                                    🥉
+                                {% else %}
+                                    #{{ loop.index }}
+                                {% endif %}
+
+                            </div>
+
+                            <div>
+                                <p class="ranking-flavor">
+                                    {{ item.flavor_name }}
+                                </p>
+
+                                <p class="muted">
+                                    購入済み累計
+                                </p>
+                            </div>
+
+                        </div>
+
+                        <div class="ranking-right">
+                            {{ item.total_quantity }}個
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="empty-box">
+                ランキングデータがありません
+            </div>
+
+        {% endif %}
+
+    </section>
+
+</div>
+
+{% endblock %}

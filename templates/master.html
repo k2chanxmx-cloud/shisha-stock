@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block page_title %}
+マスタ
+{% endblock %}
+
+{% block content %}
+
+<div class="grid-gap">
+
+    <!-- 新規追加 -->
+    <section class="glass-card">
+
+        <div class="card-header">
+            <h2>メーカー追加</h2>
+        </div>
+
+        <form
+            method="post"
+            action="{{ url_for('master_create') }}"
+        >
+
+            <div class="form-group">
+                <label>メーカー名</label>
+
+                <input
+                    type="text"
+                    name="name"
+                    placeholder="FUMARI"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label>単価</label>
+
+                <input
+                    type="number"
+                    name="unit_price"
+                    placeholder="3300"
+                    required
+                >
+            </div>
+
+            <button
+                type="submit"
+                class="primary-btn"
+            >
+                追加する
+            </button>
+
+        </form>
+
+    </section>
+
+
+    <!-- 一覧 -->
+    <section class="glass-card">
+
+        <div class="card-header">
+            <h2>メーカー一覧</h2>
+        </div>
+
+        {% if manufacturers %}
+
+            <div class="master-list">
+
+                {% for maker in manufacturers %}
+
+                    <div class="master-item">
+
+                        <!-- 更新 -->
+                        <form
+                            method="post"
+                            action="{{ url_for('master_update', manufacturer_id=maker.id) }}"
+                            class="master-form"
+                        >
+
+                            <div class="form-group">
+                                <label>メーカー名</label>
+
+                                <input
+                                    type="text"
+                                    name="name"
+                                    value="{{ maker.name }}"
+                                    required
+                                >
+                            </div>
+
+                            <div class="form-group">
+                                <label>単価</label>
+
+                                <input
+                                    type="number"
+                                    name="unit_price"
+                                    value="{{ maker.unit_price }}"
+                                    required
+                                >
+                            </div>
+
+                            <button
+                                type="submit"
+                                class="secondary-btn"
+                            >
+                                更新
+                            </button>
+
+                        </form>
+
+
+                        <!-- 削除 -->
+                        <form
+                            method="post"
+                            action="{{ url_for('master_delete', manufacturer_id=maker.id) }}"
+                            onsubmit="return confirm('削除しますか？')"
+                        >
+
+                            <button
+                                type="submit"
+                                class="danger-btn"
+                            >
+                                削除
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="empty-box">
+                メーカーが登録されていません
+            </div>
+
+        {% endif %}
+
+    </section>
+
+</div>
+
+{% endblock %}
